@@ -1,0 +1,164 @@
+call plug#begin('~/.vim/plugged')
+Plug 'sheerun/vim-polyglot'
+Plug 'eugen0329/vim-esearch'
+Plug 'vim-airline/vim-airline'
+Plug 'preservim/nerdcommenter'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
+Plug 'dracula/vim', { 'as': 'dracula' }
+Plug 'itchyny/lightline.vim'
+Plug 'ajh17/VimCompletesMe'
+Plug 'rstacruz/vim-closer'
+Plug 'tmux-plugins/vim-tmux-focus-events'
+Plug 'heavenshell/vim-jsdoc'
+Plug 'tpope/vim-fugitive'
+Plug 'christoomey/vim-tmux-navigator'
+Plug 'vim-test/vim-test'
+Plug 'aserebryakov/vim-todo-lists'
+Plug 'https://github.com/tpope/vim-dispatch'
+Plug 'leafgarland/typescript-vim'
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+
+" Initialize plugin system
+call plug#end()
+
+syntax on
+
+let g:typescript_compiler_binary = 'tsc'
+let g:typescript_compiler_options = ''
+
+" Enable deoplete at startup
+let g:deoplete#enable_at_startup = 1
+
+let g:esearch = { 'adapter': 'git', 'backend': 'nvim', 'batch': '1000'}
+
+" coc extensions
+let g:coc_global_extensions = ['coc-tslint-plugin', 'coc-tsserver', 'coc-emmet', 'coc-css', 'coc-html', 'coc-json', 'coc-yank', 'coc-prettier']
+
+" Symbol renaming.
+nmap <leader>rn <Plug>(coc-rename)
+
+" Vim Test
+" these "Ctrl mappings" work well when Caps Lock is mapped to Ctrl
+nmap <silent> t<C-n> :TestNearest<CR>
+nmap <silent> t<C-f> :TestFile<CR>
+nmap <silent> t<C-s> :TestSuite<CR>
+nmap <silent> t<C-l> :TestLast<CR>
+nmap <silent> t<C-g> :TestVisit<CR>
+
+" Prettier
+command! -nargs=0 Prettier :CocCommand prettier.formatFile
+
+" Golang
+let g:go_fmt_command = "goimports"
+
+" VimCompletesMe  
+autocmd FileType css,ruby,scss,typescript,javascript let b:vcm_tab_complete = "omni"
+
+" Vim Fugitive
+nmap <silent> <leader>f :Ggrep 
+
+" FZF 
+function! GFilesFallback()
+  let output = system('git rev-parse --show-toplevel') " Is there a faster way?
+  let prefix = get(g:, 'fzf_command_prefix', '')
+  let gArgs = ' --exclude-standard --others --cached'
+  if v:shell_error == 0
+    exec "normal :" . prefix . "GFiles" . gArgs . "\<CR>"
+  else
+    exec "normal :" . prefix . "Files\<CR>"
+  endif
+  return 0
+endfunction
+
+nnoremap <c-g> :call GFilesFallback()<CR>
+nmap <silent> <C-p> :GFiles<CR>
+nmap <silent> <C-x>f :Ag<CR>
+nmap <silent> <leader>sb :Buffers<CR>
+
+" Vim Grep 
+nmap <silent> <leader>n :cnext<CR>
+nmap <silent> <leader>p :cprev<CR>
+
+" js-doge 
+nmap <silent> <leader>A <Plug>(jsdoc)
+
+" C O C 
+nmap <silent> <leader>d <Plug>(coc-definition) 
+nmap <silent> <leader>dj <Plug>(coc-implementation)
+nmap <silent> <leader>r <Plug>(coc-referencees)
+nmap <silent> <leader>en <Plug>(coc-diagnostic-next)
+nmap <silent> <leader>ep <Plug>(coc-diagnostic-prev)
+nmap <silent> K :call <SID>show_documentation()<CR>
+
+" Remap leader key to ,
+map <Space> <Leader>
+
+" Dispatch
+autocmd FileType typescript let b:dispatch = 'npm run develop -- au_PN'
+nmap <silent> <leader>c :Dispatch<CR>
+
+set shell=/bin/sh
+
+inoremap jk <ESC>
+inoremap kk <ESC>
+
+" auto reload vimrc may be slow
+augroup myvimrc
+    au!
+    au BufWritePost .vimrc,_vimrc,vimrc,.gvimrc,_gvimrc,gvimrc so $MYVIMRC | if has('gui_running') | so $MYGVIMRC | endif
+augroup END
+
+filetype plugin indent on
+" On pressing tab, insert 2 spaces
+set expandtab
+" " show existing tab with 2 spaces width
+set tabstop=2
+set softtabstop=2
+" " when indenting with '>', use 2 spaces width
+set shiftwidth=2
+
+set number relativenumber
+
+set smartcase
+
+" Quickfix list height
+let g:ag_qhandler="copen 30"
+
+" Remember undo history
+set undofile 
+
+set backupdir=/tmp//
+set directory=/tmp//
+set undodir=/tmp//
+
+autocmd FileType python let b:coc_root_patterns = ['.git', '.env']
+
+autocmd BufEnter * if expand("%:p:h") !~ '^/tmp' | silent! lcd %:p:h | endif  
+
+let g:dracula_italic = 0
+colorscheme dracula
+highlight Normal ctermbg=None
+
+" Tab Keybindings
+nnoremap to :tabedit %<cr>
+nnoremap tc :tabclose<cr>
+
+inoremap <silent><expr> <C-c> pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
+augroup vimrc_autocmd
+  autocmd!
+" Prompts user to create directory when working in a parent that doesnt exist
+augroup vimrc-auto-mkdir
+  autocmd!
+  autocmd BufWritePre * call s:auto_mkdir(expand('<afile>:p:h'), v:cmdbang)
+  function! s:auto_mkdir(dir, force)
+    if !isdirectory(a:dir)
+          \   && (a:force
+          \       || input("'" . a:dir . "' does not exist. Create? [y/N]") =~? '^y\%[es]$')
+      call mkdir(iconv(a:dir, &encoding, &termencoding), 'p')
+    endif
+  endfunction
+augroup END
+
