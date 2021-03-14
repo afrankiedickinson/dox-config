@@ -6,7 +6,6 @@ Plug 'preservim/nerdcommenter'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
-Plug 'dracula/vim', { 'as': 'dracula' }
 Plug 'itchyny/lightline.vim'
 Plug 'ajh17/VimCompletesMe'
 Plug 'rstacruz/vim-closer'
@@ -19,6 +18,8 @@ Plug 'aserebryakov/vim-todo-lists'
 Plug 'https://github.com/tpope/vim-dispatch'
 Plug 'leafgarland/typescript-vim'
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+Plug 'arcticicestudio/nord-vim'
+Plug 'vim-test/vim-test'
 
 " Initialize plugin system
 call plug#end()
@@ -52,6 +53,13 @@ command! -nargs=0 Prettier :CocCommand prettier.formatFile
 
 " Golang
 let g:go_fmt_command = "goimports"
+
+" vim test mappings
+nmap <silent> t<C-n> :TestNearest<CR>
+nmap <silent> t<C-f> :TestFile<CR>
+nmap <silent> t<C-s> :TestSuite<CR>
+nmap <silent> t<C-l> :TestLast<CR>
+nmap <silent> t<C-g> :TestVisit<CR>
 
 " VimCompletesMe  
 autocmd FileType css,ruby,scss,typescript,javascript let b:vcm_tab_complete = "omni"
@@ -121,6 +129,7 @@ set shiftwidth=2
 
 set number relativenumber
 
+colorscheme nord
 set smartcase
 
 " Quickfix list height
@@ -136,10 +145,6 @@ set undodir=/tmp//
 autocmd FileType python let b:coc_root_patterns = ['.git', '.env']
 
 autocmd BufEnter * if expand("%:p:h") !~ '^/tmp' | silent! lcd %:p:h | endif  
-
-let g:dracula_italic = 0
-colorscheme dracula
-highlight Normal ctermbg=None
 
 " Tab Keybindings
 nnoremap to :tabedit %<cr>

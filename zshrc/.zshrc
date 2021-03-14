@@ -6,10 +6,6 @@
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 ZSH_THEME="robbyrussell"
 
-if type nvim > /dev/null 2>&1; then
-  alias vim='nvim'
-fi
-
 export PATH=$PATH:/usr/local/go/bin
 # Specify OS specific settings
 if [ "$(uname)" = "Darwin" ]; then
@@ -102,6 +98,7 @@ source $ZSH/oh-my-zsh.sh
 # Haskell 
 export PATH=/home/frankie/.ghcup/bin:$PATH
 
+export PATH=/home/linuxbrew/.linuxbrew/bin:$PATH
 # User configuration
 bindkey '^ ' autosuggest-accept
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
